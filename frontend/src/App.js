@@ -72,7 +72,7 @@ function App() {
     const formData = new FormData();
     formData.append('zipfile', file);
     try {
-      const response = await axios.post('http://localhost:5000/upload', formData, {
+      const response = await axios.post('https://zip-explorer.vercel.app/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: progressEvent => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
