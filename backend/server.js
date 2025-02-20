@@ -1,45 +1,37 @@
 const express = require('express');
 const multer = require('multer');
-const AdmZip = require('adm-zip');
-const cors = require('cors');
-const fs = require('fs');
+const cors = require('cors'); // Keep CORS for local development
 
 const app = express();
-const port = process.env.PORT || 5000; // Use process.env.PORT for Vercel
+const port = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors()); // Enable CORS for all routes (or configure more specifically)
 
-// Configure Multer for file uploads
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: '/tmp' }); // Use /tmp for serverless functions
 
-// Endpoint to upload a ZIP file and process its hierarchy
 app.post('/upload', upload.single('zipfile'), (req, res) => {
+    console.log("Upload route hit!"); // Check Vercel logs for this message
+
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    console.log("File uploaded:", req.file); // Check file info in logs
+
     try {
-        const zip = new AdmZip(req.file.path);
-        const zipEntries = zip.getEntries();
-
-        // Generate hierarchy
-        const hierarchy = zipEntries.map(entry => ({
-            name: entry.entryName,
-            isFolder: entry.isDirectory
-        }));
-
-        // Delete uploaded file after processing
-        fs.unlinkSync(req.file.path);
-
-        res.json({ hierarchy });
+      // For the minimal server, just send back the file information
+      res.json({ message: "File uploaded successfully", file: req.file });
     } catch (error) {
-        console.error("ZIP processing error:", error); // Log the actual error for debugging
-        res.status(500).json({ error: 'Error processing ZIP file' });
+      console.error("Error:", error);
+      res.status(500).json({ error: error.message });
+    } finally {
+        if (req.file) {
+          fs.unlinkSync(req.file.path); // Delete the file after processing
+        }
     }
+
 });
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`); // Correct console log
+    console.log(`Server listening on port ${port}`);
 });
