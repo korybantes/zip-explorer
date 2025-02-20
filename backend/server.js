@@ -41,5 +41,5 @@ app.post('/upload', upload.single('zipfile'), (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+    console.log(`Server running on http://https://zip-explorer.vercel.app:${port}`);
 });
